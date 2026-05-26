@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { generateOptions } from '@/lib/quiz-engine'
-import { playTick, playCorrect, playWrong } from '@/lib/audio'
+import { playCorrect, playWrong } from '@/lib/audio'
 import type { Question, HistoryItem } from '@/types/quiz'
 
 interface QuizCardProps {
@@ -32,62 +32,23 @@ export default function QuizCard({
   const [answerTimeLeft, setAnswerTimeLeft] = useState(speedMode ? 3 : 6)
   const [options, setOptions] = useState<number[]>([])
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [feedbackAnim, setFeedbackAnim] = useState<'none' | 'correct' | 'wrong'>('none')
 
-  const cloakTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const answerTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const cloakTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const answerTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const totalCloakTime = cloakDuration
   const totalAnswerTime = speedMode ? 3 : 6
 
   const progressPercent = ((currentIndex + 1) / totalQuestions) * 100
 
-  const generateAndSetOptions = useCallback(() => {
-    const opts = generateOptions(question)
-    setOptions(opts)
-  }, [question])
-
-  const handleTimeout = useCallback(() => {
-    setIsCorrect(false)
-    setFeedbackAnim('wrong')
-    setPhase('answered')
-    playWrong()
-    onAnswer({
-      question,
-      selected: null,
-      isCorrect: false,
-    })
-  }, [question, onAnswer])
-
-  const startAnswerTimer = useCallback(() => {
-    setAnswerTimeLeft(speedMode ? 3 : 6)
-    answerTimerRef.current = setInterval(() => {
-      setAnswerTimeLeft(prev => {
-        if (prev <= 1) {
-          if (answerTimerRef.current) clearInterval(answerTimerRef.current)
-          handleTimeout()
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [speedMode, handleTimeout])
-
   useEffect(() => {
-    setPhase('cloak')
-    setCloakTimeLeft(cloakDuration)
-    setAnswerTimeLeft(speedMode ? 3 : 6)
-    setSelectedOption(null)
-    setIsCorrect(null)
-    setFeedbackAnim('none')
-    generateAndSetOptions()
+    setOptions(generateOptions(question))
 
     cloakTimerRef.current = setInterval(() => {
       setCloakTimeLeft(prev => {
         if (prev <= 1) {
           if (cloakTimerRef.current) clearInterval(cloakTimerRef.current)
           setPhase('revealed')
-          startAnswerTimer()
           return 0
         }
         return prev - 1
@@ -98,7 +59,30 @@ export default function QuizCard({
       if (cloakTimerRef.current) clearInterval(cloakTimerRef.current)
       if (answerTimerRef.current) clearInterval(answerTimerRef.current)
     }
-  }, [question, cloakDuration, speedMode, generateAndSetOptions, startAnswerTimer])
+  }, [question]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (phase !== 'revealed') return
+
+    setAnswerTimeLeft(speedMode ? 3 : 6)
+    answerTimerRef.current = setInterval(() => {
+      setAnswerTimeLeft(prev => {
+        if (prev <= 1) {
+          if (answerTimerRef.current) clearInterval(answerTimerRef.current)
+          setPhase('answered')
+          setFeedbackAnim('wrong')
+          playWrong()
+          onAnswer({ question, selected: null, isCorrect: false })
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => {
+      if (answerTimerRef.current) clearInterval(answerTimerRef.current)
+    }
+  }, [phase, speedMode, question, onAnswer])
 
   const handleOptionClick = (option: number) => {
     if (phase !== 'revealed') return
