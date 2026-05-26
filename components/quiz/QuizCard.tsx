@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { generateOptions } from '@/lib/quiz-engine'
 import { playCorrect, playWrong } from '@/lib/audio'
@@ -33,6 +33,7 @@ export default function QuizCard({
   const [options, setOptions] = useState<number[]>([])
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [feedbackAnim, setFeedbackAnim] = useState<'none' | 'correct' | 'wrong'>('none')
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
 
   const cloakTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const answerTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
