@@ -212,15 +212,17 @@ export default function SetupScreen() {
                       <label className="text-sm font-medium">Table Range</label>
                     </div>
                     <Sheet>
-                      <SheetTrigger asChild>
-                        <Button variant="outline" size="sm" className="gap-1.5">
-                          <Layers className="size-3.5" />
-                          {selectedRangeLabels.length > 0
-                            ? `${selectedRangeLabels.length} selected`
-                            : 'Select ranges'}
-                          <ArrowRight className="size-3.5" />
-                        </Button>
-                      </SheetTrigger>
+                      <SheetTrigger
+                        render={
+                          <Button variant="outline" size="sm" className="gap-1.5">
+                            <Layers className="size-3.5" />
+                            {selectedRangeLabels.length > 0
+                              ? `${selectedRangeLabels.length} selected`
+                              : 'Select ranges'}
+                            <ArrowRight className="size-3.5" />
+                          </Button>
+                        }
+                      />
                       <SheetContent side="right" className="w-80 sm:w-96">
                         <SheetHeader>
                           <SheetTitle>Table Ranges</SheetTitle>
@@ -265,9 +267,9 @@ export default function SetupScreen() {
                           </div>
                         </div>
                         <div className="mt-6">
-                          <SheetClose asChild>
-                            <Button className="w-full">Done</Button>
-                          </SheetClose>
+                          <SheetClose
+                            render={<Button className="w-full">Done</Button>}
+                          />
                         </div>
                       </SheetContent>
                     </Sheet>
