@@ -26,3 +26,11 @@ export interface QuizConfig {
   speedMode: boolean
   difficulty: Difficulty
 }
+
+export interface ScoreRecord {
+  date: number
+  score: number
+  total: number
+  percentage: number
+  timeTaken: number
+}
