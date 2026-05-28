@@ -2,6 +2,11 @@
 
 import { useState, useMemo } from 'react'
 import type { Difficulty, RangeOption, QuizConfig } from '@/types/quiz'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Switch } from '@/components/ui/switch'
+import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 
 interface SetupScreenProps {
   config: QuizConfig
@@ -37,12 +42,6 @@ export default function SetupScreen({ config, onConfigChange, onStart }: SetupSc
 
   const isStartEnabled = selectedRangeLabels.length > 0
 
-  const toggleRange = (label: string) => {
-    setSelectedRangeLabels(prev =>
-      prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
-    )
-  }
-
   const selectAllRanges = () => setSelectedRangeLabels(RANGE_PRESETS.map(r => r.label))
   const clearRanges = () => setSelectedRangeLabels([])
 
@@ -65,56 +64,47 @@ export default function SetupScreen({ config, onConfigChange, onStart }: SetupSc
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-lg rounded-xl border border-border bg-card text-card-foreground shadow-sm">
-        <div className="flex flex-col space-y-1.5 p-6 pb-2">
+      <Card className="w-full max-w-lg">
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">TableMaster Pro</h1>
-              <p className="text-sm text-muted-foreground">Master multiplication tables</p>
+              <CardTitle>TableMaster Pro</CardTitle>
+              <CardDescription>Master multiplication tables</CardDescription>
             </div>
           </div>
-        </div>
-
-        <div className="p-6 pt-0 space-y-6">
+        </CardHeader>
+        <CardContent className="space-y-6">
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Table Range
               </label>
               <div className="flex gap-1">
-                <button
-                  onClick={selectAllRanges}
-                  className="inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-7 px-2 text-muted-foreground"
-                >
+                <Button variant="ghost" size="xs" onClick={selectAllRanges}>
                   Select All
-                </button>
-                <button
-                  onClick={clearRanges}
-                  className="inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-7 px-2 text-muted-foreground"
-                >
+                </Button>
+                <Button variant="ghost" size="xs" onClick={clearRanges}>
                   Clear
-                </button>
+                </Button>
               </div>
             </div>
-            <div className="grid grid-cols-5 gap-2" role="group">
-              {RANGE_PRESETS.map((range) => {
-                const isSelected = selectedRangeLabels.includes(range.label)
-                return (
-                  <button
-                    key={range.label}
-                    onClick={() => toggleRange(range.label)}
-                    data-state={isSelected ? 'on' : 'off'}
-                    className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 px-3 py-2 ${
-                      isSelected
-                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                        : 'bg-transparent text-muted-foreground border border-input'
-                    }`}
-                  >
-                    {range.label}
-                  </button>
-                )
-              })}
-            </div>
+            <ToggleGroup
+              type="multiple"
+              value={selectedRangeLabels}
+              onValueChange={(value) => setSelectedRangeLabels(value as string[])}
+              className="grid grid-cols-5 gap-2 w-full"
+              spacing={0}
+            >
+              {RANGE_PRESETS.map((range) => (
+                <ToggleGroupItem
+                  key={range.label}
+                  value={range.label}
+                  className="rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90"
+                >
+                  {range.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
             <p className="text-xs text-muted-foreground mt-2">
               {selectedNumbersCount > 0
                 ? `${selectedNumbersCount} numbers selected`
@@ -122,118 +112,99 @@ export default function SetupScreen({ config, onConfigChange, onStart }: SetupSc
             </p>
           </div>
 
-          <div className="h-px bg-border" />
+          <Separator />
 
           <div>
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-3">
               Difficulty
             </label>
-            <div className="grid grid-cols-3 gap-2" role="group">
-              {DIFFICULTIES.map((d) => {
-                const isSelected = config.difficulty === d.value
-                return (
-                  <button
-                    key={d.value}
-                    onClick={() => updateConfig({ difficulty: d.value })}
-                    data-state={isSelected ? 'on' : 'off'}
-                    className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 p-3 ${
-                      isSelected
-                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                        : 'bg-transparent text-muted-foreground border border-input'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="text-sm font-medium">{d.label}</div>
-                      <div className="text-xs opacity-80 mt-0.5">{d.desc}</div>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
+            <ToggleGroup
+              type="single"
+              value={config.difficulty}
+              onValueChange={(value) => { if (value) updateConfig({ difficulty: value as Difficulty }) }}
+              className="grid grid-cols-3 gap-2 w-full"
+              spacing={0}
+            >
+              {DIFFICULTIES.map((d) => (
+                <ToggleGroupItem
+                  key={d.value}
+                  value={d.value}
+                  className="p-3 h-auto rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90"
+                >
+                  <div className="text-center">
+                    <div className="text-sm font-medium">{d.label}</div>
+                    <div className="text-xs opacity-80 mt-0.5">{d.desc}</div>
+                  </div>
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
 
           <div>
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-3">
               Number of Questions
             </label>
-            <div className="grid grid-cols-5 gap-2" role="group">
-              {QUESTION_COUNTS.map((count) => {
-                const isSelected = config.questionCount === count
-                return (
-                  <button
-                    key={count}
-                    onClick={() => updateConfig({ questionCount: count })}
-                    data-state={isSelected ? 'on' : 'off'}
-                    className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 px-3 py-2 ${
-                      isSelected
-                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                        : 'bg-transparent text-muted-foreground border border-input'
-                    }`}
-                  >
-                    {count}
-                  </button>
-                )
-              })}
-            </div>
+            <ToggleGroup
+              type="single"
+              value={String(config.questionCount)}
+              onValueChange={(value) => { if (value) updateConfig({ questionCount: parseInt(value) }) }}
+              className="grid grid-cols-5 gap-2 w-full"
+              spacing={0}
+            >
+              {QUESTION_COUNTS.map((count) => (
+                <ToggleGroupItem
+                  key={count}
+                  value={String(count)}
+                  className="rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90"
+                >
+                  {count}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
 
           <div>
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-3">
               Cloak Duration
             </label>
-            <div className="grid grid-cols-3 gap-2" role="group">
-              {CLOAK_OPTIONS.map((sec) => {
-                const isSelected = config.cloakDuration === sec
-                return (
-                  <button
-                    key={sec}
-                    onClick={() => updateConfig({ cloakDuration: sec })}
-                    data-state={isSelected ? 'on' : 'off'}
-                    className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 px-4 py-2.5 ${
-                      isSelected
-                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                        : 'bg-transparent text-muted-foreground border border-input'
-                    }`}
-                  >
-                    {sec}s
-                  </button>
-                )
-              })}
-            </div>
+            <ToggleGroup
+              type="single"
+              value={String(config.cloakDuration)}
+              onValueChange={(value) => { if (value) updateConfig({ cloakDuration: parseInt(value) }) }}
+              className="grid grid-cols-3 gap-2 w-full"
+              spacing={0}
+            >
+              {CLOAK_OPTIONS.map((sec) => (
+                <ToggleGroupItem
+                  key={sec}
+                  value={String(sec)}
+                  className="px-4 py-2.5 h-auto rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90"
+                >
+                  {sec}s
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-input p-3">
+          <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <div className="space-y-0.5">
-              <label className="text-sm font-medium leading-none">Speed Mode</label>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Speed Mode
+              </label>
               <p className="text-xs text-muted-foreground">Answer within 3s of options reveal</p>
             </div>
-            <button
-              onClick={() => updateConfig({ speedMode: !config.speedMode })}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                config.speedMode ? 'bg-primary' : 'bg-input'
-              }`}
-              role="switch"
-              aria-checked={config.speedMode}
-            >
-              <span
-                className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-sm ring-0 transition-transform ${
-                  config.speedMode ? 'translate-x-6' : 'translate-x-0.5'
-                }`}
-              />
-            </button>
+            <Switch
+              checked={config.speedMode}
+              onCheckedChange={(checked: boolean) => updateConfig({ speedMode: checked })}
+            />
           </div>
-        </div>
-
-        <div className="p-6 pt-0">
-          <button
-            onClick={handleStart}
-            disabled={!isStartEnabled}
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full shadow-sm"
-          >
+        </CardContent>
+        <CardFooter>
+          <Button onClick={handleStart} disabled={!isStartEnabled} className="w-full shadow-sm">
             Start Quiz
-          </button>
-        </div>
-      </div>
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   )
 }
