@@ -4,6 +4,11 @@ import { useState, useEffect, useRef } from 'react'
 import { generateOptions } from '@/lib/quiz-engine'
 import { playCorrect, playWrong } from '@/lib/audio'
 import type { Question, HistoryItem } from '@/types/quiz'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardHeader, CardDescription, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 interface QuizCardProps {
   question: Question
@@ -109,36 +114,29 @@ export default function QuizCard({
   const ringRadius = 44
   const ringCircumference = 2 * Math.PI * ringRadius
 
+  const labels = ['A', 'B', 'C', 'D']
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-lg mx-auto px-4 py-6 flex flex-col min-h-screen">
         <div className="flex items-center gap-3 mb-6">
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors border-border text-muted-foreground">
-            Q {currentIndex + 1} / {totalQuestions}
-          </span>
-          <div className="flex-1 h-1.5 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors border-border text-muted-foreground">
-            {score} pts
-          </span>
+          <Badge variant="outline">Q {currentIndex + 1} / {totalQuestions}</Badge>
+          <Progress value={progressPercent} className="flex-1" />
+          <Badge variant="outline">{score} pts</Badge>
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center gap-8">
           {streak > 1 && (
-            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-border text-warning bg-muted">
+            <Badge variant="outline" className="text-warning border-border bg-muted">
               🔥 {streak} streak
-            </span>
+            </Badge>
           )}
 
-          <div className="w-full rounded-xl border border-border bg-card text-card-foreground shadow-sm">
-            <div className="flex flex-col space-y-1.5 p-6 pb-2">
-              <p className="text-sm text-muted-foreground">Calculate the product</p>
-            </div>
-            <div className="p-6 pt-0 flex flex-col items-center gap-6">
+          <Card className="w-full">
+            <CardHeader>
+              <CardDescription>Calculate the product</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center gap-6">
               <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
                 {question.a}
                 <span className="text-primary"> × </span>
@@ -181,46 +179,44 @@ export default function QuizCard({
                   Options will appear in {cloakTimeLeft}s — calculate mentally!
                 </p>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           <div className="w-full grid grid-cols-2 gap-3">
             {phase === 'cloak' ? (
               <>
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-14 rounded-md animate-pulse bg-muted" />
+                  <Skeleton key={i} className="h-14 rounded-md" />
                 ))}
               </>
             ) : (
               options.map((option, idx) => {
-                const labels = ['A', 'B', 'C', 'D']
-                let variant = 'bg-transparent text-card-foreground border border-input hover:bg-accent hover:text-accent-foreground'
+                let btnClass = ''
                 let icon = null
 
                 if (phase === 'answered') {
                   if (option === question.ans) {
-                    variant = 'bg-success text-white border-success'
+                    btnClass = 'bg-success text-white border-success hover:bg-success/90'
                     icon = <span className="text-lg mr-2">✓</span>
                   } else if (option === selectedOption && feedbackAnim === 'wrong') {
-                    variant = 'bg-destructive text-destructive-foreground border-destructive animate-shake'
+                    btnClass = 'bg-destructive text-destructive-foreground border-destructive animate-shake'
                     icon = <span className="text-lg mr-2">✗</span>
                   }
                 }
 
                 return (
-                  <button
+                  <Button
                     key={idx}
+                    variant="outline"
+                    className={`h-14 w-full justify-start ${btnClass}`}
                     onClick={() => handleOptionClick(option)}
                     disabled={phase === 'answered'}
-                    className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none h-14 px-4 ${variant} ${
-                      phase === 'revealed' && !selectedOption ? 'hover:scale-[1.02] active:scale-[0.98]' : ''
-                    }`}
                     aria-label={`Option ${labels[idx]}: ${option}`}
                   >
                     {icon}
                     <span className="text-sm mr-1.5 text-muted-foreground">{labels[idx]}.</span>
                     {option}
-                  </button>
+                  </Button>
                 )
               })
             )}
