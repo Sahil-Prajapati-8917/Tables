@@ -1,145 +1,33 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-import { generateQuestions } from '@/lib/quiz-engine'
-import type { QuizPhase, QuizConfig, Question, HistoryItem } from '@/types/quiz'
+import { QuizProvider, useQuiz } from '@/context/QuizContext'
 import SetupScreen from '@/components/quiz/SetupScreen'
 import CountdownOverlay from '@/components/quiz/CountdownOverlay'
 import QuizCard from '@/components/quiz/QuizCard'
 import ResultScreen from '@/components/quiz/ResultScreen'
-import ThemeToggle from '@/components/quiz/ThemeToggle'
 
-const DEFAULT_CONFIG: QuizConfig = {
-  ranges: [],
-  questionCount: 10,
-  cloakDuration: 5,
-  speedMode: false,
-  difficulty: 'medium',
-}
-
-export default function Home() {
-  const [phase, setPhase] = useState<QuizPhase>('setup')
-  const [config, setConfig] = useState<QuizConfig>(DEFAULT_CONFIG)
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [history, setHistory] = useState<HistoryItem[]>([])
-  const [score, setScore] = useState(0)
-  const [streak, setStreak] = useState(0)
-  const [startTime, setStartTime] = useState(0)
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('tablemaster-theme')
-      if (saved === 'light' || saved === 'dark') {
-        setTheme(saved)
-      } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        setTheme(prefersDark ? 'dark' : 'light')
-      }
-    } catch {}
-  }, [])
-
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.toggle('dark', theme === 'dark')
-    try {
-      localStorage.setItem('tablemaster-theme', theme)
-    } catch {}
-  }, [theme])
-
-  const handleToggleTheme = useCallback(() => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light')
-  }, [])
-
-  const handleStart = useCallback(() => {
-    if (config.ranges.length === 0) return
-    if (startTime === 0) setStartTime(Date.now())
-
-    const generated = generateQuestions(config)
-    if (generated.length === 0) return
-
-    setQuestions(generated)
-    setCurrentIndex(0)
-    setHistory([])
-    setScore(0)
-    setStreak(0)
-    setPhase('countdown')
-  }, [config, startTime])
-
-  const handleCountdownComplete = useCallback(() => {
-    setPhase('quiz')
-  }, [])
-
-  const handleAnswer = useCallback((item: HistoryItem) => {
-    setHistory(prev => [...prev, item])
-    if (item.isCorrect) {
-      setScore(prev => prev + 10)
-      setStreak(prev => prev + 1)
-    } else {
-      setStreak(0)
-    }
-    if (currentIndex + 1 >= questions.length) {
-      setPhase('result')
-    } else {
-      setCurrentIndex(prev => prev + 1)
-    }
-  }, [currentIndex, questions.length])
-
-  const handlePlayAgain = useCallback(() => {
-    setPhase('setup')
-    setStartTime(0)
-    setConfig(DEFAULT_CONFIG)
-  }, [])
+function QuizRouter() {
+  const { phase, handleCountdownComplete } = useQuiz()
 
   return (
     <>
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
-      </div>
-
-      {phase === 'setup' && (
-        <SetupScreen
-          config={config}
-          onConfigChange={setConfig}
-          onStart={handleStart}
-        />
-      )}
-
-      {phase === 'countdown' && (
+      {phase === 'setup' && <SetupScreen />}
+      {(phase === 'countdown') && (
         <>
-          <SetupScreen
-            config={config}
-            onConfigChange={setConfig}
-            onStart={handleStart}
-          />
+          <SetupScreen />
           <CountdownOverlay onComplete={handleCountdownComplete} />
         </>
       )}
-
-      {phase === 'quiz' && questions[currentIndex] && (
-        <QuizCard
-          key={currentIndex}
-          question={questions[currentIndex]}
-          currentIndex={currentIndex}
-          totalQuestions={questions.length}
-          score={score}
-          streak={streak}
-          cloakDuration={config.cloakDuration}
-          speedMode={config.speedMode}
-          onAnswer={handleAnswer}
-        />
-      )}
-
-      {phase === 'result' && (
-        <ResultScreen
-          history={history}
-          score={score}
-          totalQuestions={questions.length}
-          startTime={startTime}
-          onPlayAgain={handlePlayAgain}
-        />
-      )}
+      {phase === 'quiz' && <QuizCard />}
+      {phase === 'result' && <ResultScreen />}
     </>
+  )
+}
+
+export default function Home() {
+  return (
+    <QuizProvider>
+      <QuizRouter />
+    </QuizProvider>
   )
 }
