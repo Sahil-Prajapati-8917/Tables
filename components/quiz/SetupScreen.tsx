@@ -166,9 +166,8 @@ export default function SetupScreen({ config, onConfigChange, onStart }: SetupSc
               Cloak Duration
             </label>
             <ToggleGroup
-              type="single"
-              value={String(config.cloakDuration)}
-              onValueChange={(value) => { if (value) updateConfig({ cloakDuration: parseInt(value) }) }}
+              value={[String(config.cloakDuration)]}
+              onValueChange={(value) => { if (value.length > 0) updateConfig({ cloakDuration: parseInt(value[0]) }) }}
               className="grid grid-cols-3 gap-2 w-full"
               spacing={0}
             >
