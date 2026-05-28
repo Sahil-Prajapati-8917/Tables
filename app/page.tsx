@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { generateQuestions } from '@/lib/quiz-engine'
 import type { QuizPhase, QuizConfig, Question, HistoryItem } from '@/types/quiz'
 import SetupScreen from '@/components/quiz/SetupScreen'
@@ -16,18 +16,6 @@ const DEFAULT_CONFIG: QuizConfig = {
   difficulty: 'medium',
 }
 
-function getInitialTheme(): 'light' | 'dark' {
-  if (typeof window !== 'undefined') {
-    try {
-      const saved = localStorage.getItem('tablemaster-theme')
-      if (saved === 'light' || saved === 'dark') return saved
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      return prefersDark ? 'dark' : 'light'
-    } catch {}
-  }
-  return 'dark'
-}
-
 export default function Home() {
   const [phase, setPhase] = useState<QuizPhase>('setup')
   const [config, setConfig] = useState<QuizConfig>(DEFAULT_CONFIG)
@@ -37,15 +25,18 @@ export default function Home() {
   const [score, setScore] = useState(0)
   const [streak, setStreak] = useState(0)
   const [startTime, setStartTime] = useState(0)
-  const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme)
-  const inited = useRef(false)
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
 
   useEffect(() => {
-    if (inited.current) return
-    inited.current = true
-    const t = getInitialTheme()
-    const root = document.documentElement
-    root.classList.toggle('dark', t === 'dark')
+    try {
+      const saved = localStorage.getItem('tablemaster-theme')
+      if (saved === 'light' || saved === 'dark') {
+        setTheme(saved)
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        setTheme(prefersDark ? 'dark' : 'light')
+      }
+    } catch {}
   }, [])
 
   useEffect(() => {
