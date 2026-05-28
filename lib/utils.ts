@@ -1,3 +1,5 @@
-export function cn(...classes: (string | undefined | null | false)[]): string {
-  return classes.filter(Boolean).join(' ')
+type ClassValue = string | ((...args: unknown[]) => unknown) | undefined | null | false
+
+export function cn(...classes: ClassValue[]): string {
+  return classes.filter((c): c is string => typeof c === 'string').join(' ')
 }
