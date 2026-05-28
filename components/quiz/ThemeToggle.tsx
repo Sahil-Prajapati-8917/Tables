@@ -1,5 +1,7 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+
 interface ThemeToggleProps {
   theme: 'light' | 'dark'
   onToggle: () => void
@@ -7,9 +9,10 @@ interface ThemeToggleProps {
 
 export default function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={onToggle}
-      className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 w-9"
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
     >
       {theme === 'light' ? (
@@ -29,6 +32,6 @@ export default function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
           <line x1="18.36" y1="5.64" x2="19.64" y2="4.22" />
         </svg>
       )}
-    </button>
+    </Button>
   )
 }

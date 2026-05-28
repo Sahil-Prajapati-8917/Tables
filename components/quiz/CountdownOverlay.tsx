@@ -14,22 +14,33 @@ export default function CountdownOverlay({ onComplete }: CountdownOverlayProps) 
       onComplete()
       return
     }
-    const timer = setTimeout(() => setCount(c => c - 1), 900)
+
+    const timer = setTimeout(() => {
+      setCount(c => c - 1)
+    }, 900)
+
     return () => clearTimeout(timer)
   }, [count, onComplete])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'var(--overlay)' }}
+    >
       <div className="text-center">
         {count > 0 ? (
           <div
             key={count}
-            className="animate-countdown-pop text-8xl font-bold select-none text-primary-foreground"
+            className="animate-countdown-pop text-8xl font-bold select-none"
+            style={{ color: 'var(--primary-fg)' }}
           >
             {count}
           </div>
         ) : (
-          <div className="animate-countdown-pop text-6xl font-bold select-none text-primary">
+          <div
+            className="animate-countdown-pop text-6xl font-bold select-none"
+            style={{ color: 'var(--primary)' }}
+          >
             GO!
           </div>
         )}
