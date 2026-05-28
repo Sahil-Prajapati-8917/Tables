@@ -89,9 +89,9 @@ export default function SetupScreen({ config, onConfigChange, onStart }: SetupSc
               </div>
             </div>
             <ToggleGroup
-              type="multiple"
+              multiple
               value={selectedRangeLabels}
-              onValueChange={(value) => setSelectedRangeLabels(value as string[])}
+              onValueChange={(value) => setSelectedRangeLabels(value)}
               className="grid grid-cols-5 gap-2 w-full"
               spacing={0}
             >
@@ -119,9 +119,8 @@ export default function SetupScreen({ config, onConfigChange, onStart }: SetupSc
               Difficulty
             </label>
             <ToggleGroup
-              type="single"
-              value={config.difficulty}
-              onValueChange={(value) => { if (value) updateConfig({ difficulty: value as Difficulty }) }}
+              value={[config.difficulty]}
+              onValueChange={(value) => { if (value.length > 0) updateConfig({ difficulty: value[0] as Difficulty }) }}
               className="grid grid-cols-3 gap-2 w-full"
               spacing={0}
             >
@@ -145,9 +144,8 @@ export default function SetupScreen({ config, onConfigChange, onStart }: SetupSc
               Number of Questions
             </label>
             <ToggleGroup
-              type="single"
-              value={String(config.questionCount)}
-              onValueChange={(value) => { if (value) updateConfig({ questionCount: parseInt(value) }) }}
+              value={[String(config.questionCount)]}
+              onValueChange={(value) => { if (value.length > 0) updateConfig({ questionCount: parseInt(value[0]) }) }}
               className="grid grid-cols-5 gap-2 w-full"
               spacing={0}
             >
