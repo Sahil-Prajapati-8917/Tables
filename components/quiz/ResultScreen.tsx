@@ -37,108 +37,65 @@ export default function ResultScreen({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--bg)' }}>
-      <div className="w-full max-w-lg space-y-4 animate-slide-up">
-        <div
-          className="p-6 sm:p-8 rounded-2xl text-center"
-          style={{
-            background: 'var(--card-bg)',
-            border: '1px solid var(--card-border)',
-            boxShadow: 'var(--shadow-lg)',
-          }}
-        >
-          <div className="text-5xl mb-3">{performance.emoji}</div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--fg)' }}>
-            {performance.label}
-          </h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--muted-fg)' }}>
-            Quiz completed in {timeTaken}
-          </p>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-lg space-y-4 animate-fade-in">
+        <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6 text-center space-y-4">
+          <div className="text-5xl">{performance.emoji}</div>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight">{performance.label}</h1>
+            <p className="text-sm text-muted-foreground">Quiz completed in {timeTaken}</p>
+          </div>
 
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            <div
-              className="p-4 rounded-xl"
-              style={{ background: 'var(--muted)' }}
-            >
-              <div className="text-2xl font-bold" style={{ color: 'var(--success)' }}>
-                {correctCount}
-              </div>
-              <div className="text-xs mt-1" style={{ color: 'var(--muted-fg)' }}>
-                Correct
-              </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-lg border border-border bg-background p-4">
+              <div className="text-2xl font-bold" style={{ color: 'var(--success)' }}>{correctCount}</div>
+              <div className="text-xs text-muted-foreground mt-1">Correct</div>
             </div>
-            <div
-              className="p-4 rounded-xl"
-              style={{ background: 'var(--muted)' }}
-            >
-              <div className="text-2xl font-bold" style={{ color: 'var(--error)' }}>
-                {wrongCount}
-              </div>
-              <div className="text-xs mt-1" style={{ color: 'var(--muted-fg)' }}>
-                Wrong
-              </div>
+            <div className="rounded-lg border border-border bg-background p-4">
+              <div className="text-2xl font-bold" style={{ color: 'var(--destructive)' }}>{wrongCount}</div>
+              <div className="text-xs text-muted-foreground mt-1">Wrong</div>
             </div>
-            <div
-              className="p-4 rounded-xl"
-              style={{ background: 'var(--muted)' }}
-            >
-              <div className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
-                {percentage}%
-              </div>
-              <div className="text-xs mt-1" style={{ color: 'var(--muted-fg)' }}>
-                Score
-              </div>
+            <div className="rounded-lg border border-border bg-background p-4">
+              <div className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>{percentage}%</div>
+              <div className="text-xs text-muted-foreground mt-1">Score</div>
             </div>
           </div>
 
-          <div className="mt-4 text-sm" style={{ color: 'var(--muted-fg)' }}>
-            Points: {score}
-          </div>
+          <p className="text-sm text-muted-foreground">Points: {score}</p>
         </div>
 
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{
-            background: 'var(--card-bg)',
-            border: '1px solid var(--card-border)',
-            boxShadow: 'var(--shadow-md)',
-          }}
-        >
-          <div className="p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
-            <h2 className="text-base font-semibold" style={{ color: 'var(--fg)' }}>
-              Question Review
-            </h2>
+        <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+          <div className="flex flex-col space-y-1.5 p-4 pb-2">
+            <h2 className="text-sm font-semibold tracking-tight">Question Review</h2>
           </div>
-          <div
-            className="overflow-y-auto"
-            style={{ maxHeight: '420px' }}
-          >
+          <div className="h-px bg-border" />
+          <div className="overflow-y-auto custom-scrollbar" style={{ maxHeight: '420px' }}>
             {history.map((item, idx) => (
               <div
                 key={idx}
-                className="p-4 border-b last:border-b-0"
+                className="p-4 border-l-2 transition-colors hover:bg-accent/50"
                 style={{
-                  borderColor: 'var(--card-border)',
-                  borderLeft: `3px solid ${item.isCorrect ? 'var(--success)' : 'var(--error)'}`,
+                  borderLeftColor: item.isCorrect ? 'var(--success)' : 'var(--destructive)',
+                  borderBottom: '1px solid var(--border)',
                 }}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--fg)' }}>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">
                       {item.question.a} × {item.question.b} = {item.question.ans}
-                    </div>
-                    <div className="text-xs mt-1" style={{ color: 'var(--muted-fg)' }}>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
                       Your answer:{' '}
                       <span
                         className="font-medium"
-                        style={{ color: item.isCorrect ? 'var(--success)' : 'var(--error)' }}
+                        style={{ color: item.isCorrect ? 'var(--success)' : 'var(--destructive)' }}
                       >
                         {item.selected !== null ? item.selected : '— (timed out)'}
                       </span>
-                    </div>
+                    </p>
                   </div>
                   <span className="text-lg flex-shrink-0">
-                    {item.isCorrect ? '✅' : '❌'}
+                    {item.isCorrect ? '✓' : '✗'}
                   </span>
                 </div>
               </div>
@@ -148,13 +105,7 @@ export default function ResultScreen({
 
         <button
           onClick={onPlayAgain}
-          className="w-full py-3.5 rounded-xl text-base font-semibold transition-all duration-200 border-2"
-          style={{
-            background: 'var(--primary)',
-            color: 'var(--primary-fg)',
-            borderColor: 'var(--primary)',
-            boxShadow: 'var(--shadow-glow)',
-          }}
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full shadow-sm"
         >
           Play Again
         </button>

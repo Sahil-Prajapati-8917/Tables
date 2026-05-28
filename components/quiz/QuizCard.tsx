@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { cn } from '@/lib/utils'
 import { generateOptions } from '@/lib/quiz-engine'
 import { playCorrect, playWrong } from '@/lib/audio'
 import type { Question, HistoryItem } from '@/types/quiz'
@@ -33,13 +32,11 @@ export default function QuizCard({
   const [options, setOptions] = useState<number[]>([])
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [feedbackAnim, setFeedbackAnim] = useState<'none' | 'correct' | 'wrong'>('none')
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
 
   const cloakTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const answerTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const totalCloakTime = cloakDuration
   const totalAnswerTime = speedMode ? 3 : 6
-
   const progressPercent = ((currentIndex + 1) / totalQuestions) * 100
 
   useEffect(() => {
@@ -87,27 +84,18 @@ export default function QuizCard({
 
   const handleOptionClick = (option: number) => {
     if (phase !== 'revealed') return
-
     if (answerTimerRef.current) clearInterval(answerTimerRef.current)
 
     const correct = option === question.ans
     setSelectedOption(option)
-    setIsCorrect(correct)
     setFeedbackAnim(correct ? 'correct' : 'wrong')
     setPhase('answered')
 
-    if (correct) {
-      playCorrect()
-    } else {
-      playWrong()
-    }
+    if (correct) playCorrect()
+    else playWrong()
 
     setTimeout(() => {
-      onAnswer({
-        question,
-        selected: option,
-        isCorrect: correct,
-      })
+      onAnswer({ question, selected: option, isCorrect: correct })
     }, 1100)
   }
 
@@ -115,198 +103,122 @@ export default function QuizCard({
     const ratio = timeLeft / total
     if (ratio > 0.5) return 'var(--primary)'
     if (ratio > 0.25) return 'var(--warning)'
-    return 'var(--error)'
+    return 'var(--destructive)'
   }
 
   const ringRadius = 44
   const ringCircumference = 2 * Math.PI * ringRadius
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
-      <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full p-4 sm:p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div
-            className="flex-1 h-2 rounded-full overflow-hidden"
-            style={{ background: 'var(--muted)' }}
-          >
+    <div className="min-h-screen bg-background">
+      <div className="max-w-lg mx-auto px-4 py-6 flex flex-col min-h-screen">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors border-border text-muted-foreground">
+            Q {currentIndex + 1} / {totalQuestions}
+          </span>
+          <div className="flex-1 h-1.5 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full transition-all duration-500 ease-out"
-              style={{
-                width: `${progressPercent}%`,
-                background: 'var(--primary)',
-              }}
+              className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+              style={{ width: `${progressPercent}%` }}
             />
           </div>
-          <span
-            className="text-sm font-medium whitespace-nowrap"
-            style={{ color: 'var(--muted-fg)' }}
-          >
-            {currentIndex + 1}/{totalQuestions}
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors border-border text-muted-foreground">
+            {score} pts
           </span>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center gap-6">
-          <div className="flex items-center gap-6">
-            <div
-              className="text-sm font-medium px-3 py-1.5 rounded-full"
-              style={{
-                background: 'var(--muted)',
-                color: 'var(--muted-fg)',
-              }}
-            >
-              Score: {score}
+        <div className="flex-1 flex flex-col items-center justify-center gap-8">
+          {streak > 1 && (
+            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-border text-warning bg-muted">
+              🔥 {streak} streak
+            </span>
+          )}
+
+          <div className="w-full rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6 pb-2">
+              <p className="text-sm text-muted-foreground">Calculate the product</p>
             </div>
-            {streak > 1 && (
-              <div
-                className="text-sm font-medium px-3 py-1.5 rounded-full animate-progress-pulse"
-                style={{
-                  background: 'var(--warning-bg)',
-                  color: 'var(--warning)',
-                }}
-              >
-                🔥 {streak} streak
+            <div className="p-6 pt-0 flex flex-col items-center gap-6">
+              <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
+                {question.a}
+                <span className="text-primary"> × </span>
+                {question.b}
+                <span className="text-muted-foreground"> = ?</span>
+              </h2>
+
+              <div className="relative">
+                <svg width="96" height="96" viewBox="0 0 100 100">
+                  <circle
+                    cx="50" cy="50" r={ringRadius}
+                    fill="none" stroke="var(--border)" strokeWidth="6"
+                  />
+                  {(phase === 'cloak' || phase === 'revealed') && (
+                    <circle
+                      cx="50" cy="50" r={ringRadius}
+                      fill="none"
+                      stroke={phase === 'cloak' ? 'var(--primary)' : getTimerRingColor(answerTimeLeft, totalAnswerTime)}
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                      strokeDasharray={ringCircumference}
+                      strokeDashoffset={
+                        ringCircumference * (1 -
+                          (phase === 'cloak'
+                            ? cloakTimeLeft / totalCloakTime
+                            : answerTimeLeft / totalAnswerTime))
+                      }
+                      transform="rotate(-90 50 50)"
+                      style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease' }}
+                    />
+                  )}
+                  <text x="50" y="54" textAnchor="middle" dominantBaseline="middle" fill="var(--foreground)" fontSize="20" fontWeight="700">
+                    {phase === 'cloak' ? cloakTimeLeft : answerTimeLeft}
+                  </text>
+                </svg>
               </div>
-            )}
-          </div>
 
-          <div
-            className="w-full max-w-md p-8 sm:p-10 rounded-2xl text-center"
-            style={{
-              background: 'var(--card-bg)',
-              border: '1px solid var(--card-border)',
-              boxShadow: 'var(--shadow-lg)',
-            }}
-          >
-            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-2" style={{ color: 'var(--fg)' }}>
-              {question.a}
-              <span style={{ color: 'var(--primary)' }}> × </span>
-              {question.b}
-              <span style={{ color: 'var(--muted-fg)' }}> = ?</span>
-            </h2>
-
-            <div className="flex justify-center mt-6">
-              <svg width="100" height="100" viewBox="0 0 100 100">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r={ringRadius}
-                  fill="none"
-                  stroke="var(--ring)"
-                  strokeWidth="6"
-                />
-                {phase === 'cloak' && (
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r={ringRadius}
-                    fill="none"
-                    stroke="var(--primary)"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    strokeDasharray={ringCircumference}
-                    strokeDashoffset={ringCircumference * (1 - cloakTimeLeft / totalCloakTime)}
-                    transform="rotate(-90 50 50)"
-                    style={{ transition: 'stroke-dashoffset 1s linear' }}
-                  />
-                )}
-                {phase === 'revealed' && (
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r={ringRadius}
-                    fill="none"
-                    stroke={getTimerRingColor(answerTimeLeft, totalAnswerTime)}
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    strokeDasharray={ringCircumference}
-                    strokeDashoffset={ringCircumference * (1 - answerTimeLeft / totalAnswerTime)}
-                    transform="rotate(-90 50 50)"
-                    style={{ transition: 'stroke-dashoffset 1s linear' }}
-                  />
-                )}
-                <text
-                  x="50"
-                  y="54"
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill="var(--fg)"
-                  fontSize="20"
-                  fontWeight="700"
-                >
-                  {phase === 'cloak' ? cloakTimeLeft : answerTimeLeft}
-                </text>
-              </svg>
+              {phase === 'cloak' && (
+                <p className="text-sm text-muted-foreground">
+                  Options will appear in {cloakTimeLeft}s — calculate mentally!
+                </p>
+              )}
             </div>
-
-            {phase === 'cloak' && (
-              <p className="text-sm mt-4" style={{ color: 'var(--muted-fg)' }}>
-                Options will appear in {cloakTimeLeft}s — calculate mentally!
-              </p>
-            )}
           </div>
 
-          <div className="w-full max-w-md grid grid-cols-2 gap-3">
+          <div className="w-full grid grid-cols-2 gap-3">
             {phase === 'cloak' ? (
               <>
                 {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="h-16 rounded-xl animate-pulse"
-                    style={{ background: 'var(--muted)' }}
-                  />
+                  <div key={i} className="h-14 rounded-md animate-pulse bg-muted" />
                 ))}
               </>
             ) : (
               options.map((option, idx) => {
-                let optionStyle: React.CSSProperties = {
-                  background: 'var(--muted)',
-                  color: 'var(--fg)',
-                  borderColor: 'var(--card-border)',
-                }
+                const labels = ['A', 'B', 'C', 'D']
+                let variant = 'bg-transparent text-card-foreground border border-input hover:bg-accent hover:text-accent-foreground'
+                let icon = null
 
                 if (phase === 'answered') {
                   if (option === question.ans) {
-                    optionStyle = {
-                      background: 'var(--success)',
-                      color: '#FFFFFF',
-                      borderColor: 'var(--success)',
-                    }
-                  } else if (option === selectedOption && !isCorrect) {
-                    optionStyle = {
-                      background: 'var(--error)',
-                      color: '#FFFFFF',
-                      borderColor: 'var(--error)',
-                    }
-                  }
-                } else if (selectedOption === option) {
-                  optionStyle = {
-                    background: 'var(--primary)',
-                    color: 'var(--primary-fg)',
-                    borderColor: 'var(--primary)',
+                    variant = 'bg-success text-white border-success'
+                    icon = <span className="text-lg mr-2">✓</span>
+                  } else if (option === selectedOption && feedbackAnim === 'wrong') {
+                    variant = 'bg-destructive text-destructive-foreground border-destructive animate-shake'
+                    icon = <span className="text-lg mr-2">✗</span>
                   }
                 }
-
-                const labels = ['A', 'B', 'C', 'D']
 
                 return (
                   <button
                     key={idx}
                     onClick={() => handleOptionClick(option)}
                     disabled={phase === 'answered'}
-                    className={cn(
-                      'h-16 rounded-xl text-lg font-semibold transition-all duration-200 border-2',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]',
-                      phase === 'revealed' && !selectedOption && 'hover:scale-[1.02] active:scale-[0.98]',
-                      feedbackAnim === 'wrong' && option === selectedOption && 'animate-shake',
-                      feedbackAnim === 'correct' && option === question.ans && 'animate-glow-green',
-                    )}
-                    style={{
-                      ...optionStyle,
-                      cursor: phase === 'answered' ? 'default' : 'pointer',
-                    }}
+                    className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none h-14 px-4 ${variant} ${
+                      phase === 'revealed' && !selectedOption ? 'hover:scale-[1.02] active:scale-[0.98]' : ''
+                    }`}
                     aria-label={`Option ${labels[idx]}: ${option}`}
                   >
-                    <span className="text-sm mr-2 opacity-60">{labels[idx]}.</span>
+                    {icon}
+                    <span className="text-sm mr-1.5 text-muted-foreground">{labels[idx]}.</span>
                     {option}
                   </button>
                 )

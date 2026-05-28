@@ -7,6 +7,7 @@ import SetupScreen from '@/components/quiz/SetupScreen'
 import CountdownOverlay from '@/components/quiz/CountdownOverlay'
 import QuizCard from '@/components/quiz/QuizCard'
 import ResultScreen from '@/components/quiz/ResultScreen'
+import ThemeToggle from '@/components/quiz/ThemeToggle'
 
 const DEFAULT_CONFIG: QuizConfig = {
   ranges: [],
@@ -53,10 +54,7 @@ export default function Home() {
 
   const handleStart = useCallback(() => {
     if (config.ranges.length === 0) return
-
-    if (startTime === 0) {
-      setStartTime(Date.now())
-    }
+    if (startTime === 0) setStartTime(Date.now())
 
     const generated = generateQuestions(config)
     if (generated.length === 0) return
@@ -75,14 +73,12 @@ export default function Home() {
 
   const handleAnswer = useCallback((item: HistoryItem) => {
     setHistory(prev => [...prev, item])
-
     if (item.isCorrect) {
       setScore(prev => prev + 10)
       setStreak(prev => prev + 1)
     } else {
       setStreak(0)
     }
-
     if (currentIndex + 1 >= questions.length) {
       setPhase('result')
     } else {
@@ -96,60 +92,54 @@ export default function Home() {
     setConfig(DEFAULT_CONFIG)
   }, [])
 
-  if (phase === 'setup') {
-    return (
-      <SetupScreen
-        config={config}
-        onConfigChange={setConfig}
-        onStart={handleStart}
-        theme={theme}
-        onToggleTheme={handleToggleTheme}
-      />
-    )
-  }
+  return (
+    <>
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
+      </div>
 
-  if (phase === 'countdown') {
-    return (
-      <>
+      {phase === 'setup' && (
         <SetupScreen
           config={config}
           onConfigChange={setConfig}
           onStart={handleStart}
-          theme={theme}
-          onToggleTheme={handleToggleTheme}
         />
-        <CountdownOverlay onComplete={handleCountdownComplete} />
-      </>
-    )
-  }
+      )}
 
-  if (phase === 'quiz' && questions[currentIndex]) {
-    return (
-      <QuizCard
-        key={currentIndex}
-        question={questions[currentIndex]}
-        currentIndex={currentIndex}
-        totalQuestions={questions.length}
-        score={score}
-        streak={streak}
-        cloakDuration={config.cloakDuration}
-        speedMode={config.speedMode}
-        onAnswer={handleAnswer}
-      />
-    )
-  }
+      {phase === 'countdown' && (
+        <>
+          <SetupScreen
+            config={config}
+            onConfigChange={setConfig}
+            onStart={handleStart}
+          />
+          <CountdownOverlay onComplete={handleCountdownComplete} />
+        </>
+      )}
 
-  if (phase === 'result') {
-    return (
-      <ResultScreen
-        history={history}
-        score={score}
-        totalQuestions={questions.length}
-        startTime={startTime}
-        onPlayAgain={handlePlayAgain}
-      />
-    )
-  }
+      {phase === 'quiz' && questions[currentIndex] && (
+        <QuizCard
+          key={currentIndex}
+          question={questions[currentIndex]}
+          currentIndex={currentIndex}
+          totalQuestions={questions.length}
+          score={score}
+          streak={streak}
+          cloakDuration={config.cloakDuration}
+          speedMode={config.speedMode}
+          onAnswer={handleAnswer}
+        />
+      )}
 
-  return null
+      {phase === 'result' && (
+        <ResultScreen
+          history={history}
+          score={score}
+          totalQuestions={questions.length}
+          startTime={startTime}
+          onPlayAgain={handlePlayAgain}
+        />
+      )}
+    </>
+  )
 }
