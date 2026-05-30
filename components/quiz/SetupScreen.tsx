@@ -95,7 +95,7 @@ export default function SetupScreen() {
             className="w-full max-w-xl"
           >
             <Card className="bg-card rounded-xl border border-border">
-              <div className="flex h-14 items-center justify-between border-b px-4 sm:px-5">
+              <div className="flex h-14 items-center justify-between border-b border-border px-4 sm:px-5">
                 <div className="flex items-center gap-2.5">
                   <Button
                     variant="outline"
@@ -296,7 +296,7 @@ export default function SetupScreen() {
                 </div>
               </div>
 
-              <div className="border-t px-4 sm:px-5 py-3">
+              <div className="border-t border-border px-4 sm:px-5 py-3">
                 <Button
                   onClick={handleStart}
                   disabled={!isStartEnabled}

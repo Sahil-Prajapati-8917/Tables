@@ -125,7 +125,7 @@ export default function ResultScreen() {
                 <div className="bg-card flex flex-col rounded-xl border border-border p-4 sm:p-5">
                   <div className="flex min-h-[64px] items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
+                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border border-border">
                         <CheckCircle2 className="size-4 text-emerald-600" />
                       </div>
                       <div className="space-y-1">
@@ -146,7 +146,7 @@ export default function ResultScreen() {
                 <div className="bg-card flex flex-col rounded-xl border border-border p-4 sm:p-5">
                   <div className="flex min-h-[64px] items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
+                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border border-border">
                         <XCircle className="size-4 text-destructive" />
                       </div>
                       <div className="space-y-1">
@@ -167,7 +167,7 @@ export default function ResultScreen() {
                 <div className="bg-card flex flex-col rounded-xl border border-border p-4 sm:p-5">
                   <div className="flex min-h-[64px] items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
+                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border border-border">
                         <Target className="size-4 text-primary" />
                       </div>
                       <div className="space-y-1">
@@ -194,7 +194,7 @@ export default function ResultScreen() {
               <div className="bg-card flex flex-col gap-3 rounded-xl border border-border p-4 sm:p-5">
                 <div className="flex min-h-[64px] items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
+                    <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border border-border">
                       <CircleDollarSign className="size-4 text-muted-foreground" />
                     </div>
                     <div className="space-y-1">
