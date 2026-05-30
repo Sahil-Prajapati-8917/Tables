@@ -56,19 +56,15 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
 }
 
 export default function ResultScreen() {
-  const { history, score, totalQuestions, startTime, reset } = useQuiz()
+  const { history, score, totalQuestions, timeTaken, reset } = useQuiz()
   const confettiFired = useRef(false)
 
   const correctCount = history.filter(h => h.isCorrect).length
   const wrongCount = history.filter(h => !h.isCorrect).length
   const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0
   const performance = getPerformanceLabel(percentage)
-
-  const endTimeRef = useRef(Date.now())
-  const seconds = Math.floor((endTimeRef.current - startTime) / 1000)
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  const timeTaken = { mins, secs, total: seconds }
+  const mins = Math.floor(timeTaken / 60)
+  const secs = timeTaken % 60
 
   useEffect(() => {
     if (percentage >= 80 && !confettiFired.current) {

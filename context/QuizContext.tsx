@@ -59,6 +59,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const [score, setScore] = useState(0)
   const [streak, setStreak] = useState(0)
   const [startTime, setStartTime] = useState(0)
+  const [timeTaken, setTimeTaken] = useState(0)
   const [scoreHistory, setScoreHistory] = useState<ScoreRecord[]>(loadScoreHistory)
   const historyRef = useRef<HistoryItem[]>([])
   const scoreRef = useRef(0)
@@ -104,6 +105,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     if (currentIndex + 1 >= questions.length) {
       setPhase('result')
       const elapsed = Math.floor((Date.now() - startTime) / 1000)
+      setTimeTaken(elapsed)
       const total = questions.length
       const correct = historyRef.current.filter(h => h.isCorrect).length + (item.isCorrect ? 1 : 0)
       const percentage = Math.round((correct / total) * 100)
@@ -122,6 +124,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const reset = useCallback(() => {
     setPhase('setup')
     setStartTime(0)
+    setTimeTaken(0)
     setConfig(DEFAULT_CONFIG)
     setQuestions([])
     setCurrentIndex(0)
@@ -143,6 +146,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         score,
         streak,
         startTime,
+        timeTaken,
         scoreHistory,
         setConfig,
         startQuiz,
