@@ -94,7 +94,7 @@ export default function SetupScreen() {
             transition={{ duration: 0.5 }}
             className="w-full max-w-xl"
           >
-            <Card className="bg-card rounded-xl border">
+            <Card className="bg-card rounded-xl border border-border">
               <div className="flex h-14 items-center justify-between border-b px-4 sm:px-5">
                 <div className="flex items-center gap-2.5">
                   <Button
