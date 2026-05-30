@@ -1,16 +1,15 @@
 'use client'
 
-import { useMemo, useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { useQuiz } from '@/context/QuizContext'
 import { getPerformanceLabel } from '@/lib/quiz-engine'
 import { playVictory } from '@/lib/audio'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import {
@@ -18,11 +17,12 @@ import {
   RotateCcw,
   CheckCircle2,
   XCircle,
-  Clock,
-  Target,
-  TrendingUp,
-  Sparkles,
+  CircleDollarSign,
+  ArrowUpRight,
   BarChart3,
+  Ellipsis,
+  Target,
+  Timer,
 } from 'lucide-react'
 
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
@@ -64,12 +64,11 @@ export default function ResultScreen() {
   const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0
   const performance = getPerformanceLabel(percentage)
 
-  const timeTaken = useMemo(() => {
-    const seconds = Math.floor((Date.now() - startTime) / 1000)
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return { mins, secs, total: seconds }
-  }, [startTime])
+  const endTimeRef = useRef(Date.now())
+  const seconds = Math.floor((endTimeRef.current - startTime) / 1000)
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  const timeTaken = { mins, secs, total: seconds }
 
   useEffect(() => {
     if (percentage >= 80 && !confettiFired.current) {
@@ -100,99 +99,125 @@ export default function ResultScreen() {
     }
   }, [percentage])
 
-  const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0
-
   return (
-    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-10 right-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-success/5 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative z-10 flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 py-6 gap-4">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 py-6 gap-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="glass-card border-0 shadow-xl text-center overflow-hidden">
-            <CardContent className="pt-8 pb-6 space-y-5">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
-                className="text-6xl"
-              >
-                {performance.emoji}
-              </motion.div>
-
-              <div className="space-y-1">
-                <motion.h1
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-2xl font-bold tracking-tight"
-                >
-                  {performance.label}
-                </motion.h1>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-sm text-muted-foreground"
-                >
+          <Card className="bg-card rounded-xl border">
+            <div className="flex h-14 items-center justify-center border-b px-4 sm:px-5">
+              <div className="flex items-center gap-2">
+                <div className="flex size-7 sm:size-8 items-center justify-center rounded-md border bg-muted/40">
+                  <Trophy className="size-4 text-muted-foreground" />
+                </div>
+                <h2 className="text-sm font-medium sm:text-base">{performance.label}</h2>
+              </div>
+            </div>
+            <CardContent className="pt-6 pb-6 space-y-6">
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-5xl">{performance.emoji}</span>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Timer className="size-3.5" />
                   Completed in {timeTaken.mins}m {timeTaken.secs}s
-                </motion.p>
+                </div>
               </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="grid grid-cols-3 gap-4"
-              >
-                <div className="rounded-xl bg-success/10 p-4 space-y-1">
-                  <CheckCircle2 className="size-5 mx-auto text-success" />
-                  <div className="text-2xl font-bold text-success">
-                    <AnimatedCounter value={correctCount} />
+              <div className="grid gap-4 lg:grid-cols-3">
+                <div className="bg-card flex flex-col rounded-xl border p-4 sm:p-5">
+                  <div className="flex min-h-[64px] items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
+                        <CheckCircle2 className="size-4 text-emerald-600" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-muted-foreground text-xs font-medium">Correct</p>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="text-foreground text-lg font-semibold">
+                            <AnimatedCounter value={correctCount} />
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" className="size-8" aria-label="Correct answers">
+                      <Ellipsis className="size-4" />
+                    </Button>
                   </div>
-                  <div className="text-xs text-muted-foreground">Correct</div>
                 </div>
-                <div className="rounded-xl bg-destructive/10 p-4 space-y-1">
-                  <XCircle className="size-5 mx-auto text-destructive" />
-                  <div className="text-2xl font-bold text-destructive">
-                    <AnimatedCounter value={wrongCount} />
-                  </div>
-                  <div className="text-xs text-muted-foreground">Wrong</div>
-                </div>
-                <div className="rounded-xl bg-primary/10 p-4 space-y-1">
-                  <Target className="size-5 mx-auto text-primary" />
-                  <div className="text-2xl font-bold text-primary">
-                    <AnimatedCounter value={accuracy} suffix="%" />
-                  </div>
-                  <div className="text-xs text-muted-foreground">Accuracy</div>
-                </div>
-              </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-                className="flex items-center justify-center gap-4 text-sm text-muted-foreground"
-              >
-                <span className="flex items-center gap-1">
-                  <Trophy className="size-4" />
-                  {score} pts
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="size-4" />
-                  {timeTaken.total}s
-                </span>
-                <span className="flex items-center gap-1">
-                  <TrendingUp className="size-4" />
-                  {totalQuestions} Q
-                </span>
-              </motion.div>
+                <div className="bg-card flex flex-col rounded-xl border p-4 sm:p-5">
+                  <div className="flex min-h-[64px] items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
+                        <XCircle className="size-4 text-destructive" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-muted-foreground text-xs font-medium">Wrong</p>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="text-foreground text-lg font-semibold">
+                            <AnimatedCounter value={wrongCount} />
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" className="size-8" aria-label="Wrong answers">
+                      <Ellipsis className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="bg-card flex flex-col rounded-xl border p-4 sm:p-5">
+                  <div className="flex min-h-[64px] items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
+                        <Target className="size-4 text-primary" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-muted-foreground text-xs font-medium">Accuracy</p>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="text-foreground text-lg font-semibold">
+                            <AnimatedCounter value={percentage} suffix="%" />
+                          </span>
+                          <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                            <ArrowUpRight className="size-3" />
+                            {score} pts
+                          </span>
+                          <span className="text-muted-foreground text-[10px] sm:text-xs">total</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" className="size-8" aria-label="Accuracy details">
+                      <Ellipsis className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-card flex flex-col gap-3 rounded-xl border p-4 sm:p-5">
+                <div className="flex min-h-[64px] items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
+                      <CircleDollarSign className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-muted-foreground text-xs font-medium">Score</p>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="text-foreground text-lg font-semibold">{score}</span>
+                        <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                          <ArrowUpRight className="size-3" />
+                          {totalQuestions}
+                        </span>
+                        <span className="text-muted-foreground text-[10px] sm:text-xs">questions</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon" className="size-8" aria-label="Score details">
+                    <Ellipsis className="size-4" />
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -200,30 +225,31 @@ export default function ResultScreen() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.3 }}
         >
-          <Card className="border shadow-md">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="size-4 text-muted-foreground" />
-                <CardTitle className="text-sm">Question Review</CardTitle>
+          <Card className="bg-card rounded-xl border">
+            <div className="flex h-14 items-center justify-between border-b px-4 sm:px-5">
+              <div className="flex items-center gap-2.5">
+                <Button variant="outline" size="icon" className="size-7 sm:size-8" aria-label="Question review">
+                  <BarChart3 className="size-4 text-muted-foreground" />
+                </Button>
+                <h2 className="text-sm font-medium sm:text-base">Question Review</h2>
               </div>
-            </CardHeader>
-            <CardContent className="p-0">
+            </div>
+
+            <div className="p-4 sm:p-5">
               <Tabs defaultValue="all" className="w-full">
-                <div className="px-4 pb-3">
-                  <TabsList className="w-full">
-                    <TabsTrigger value="all" className="flex-1">
-                      All ({totalQuestions})
-                    </TabsTrigger>
-                    <TabsTrigger value="correct" className="flex-1">
-                      Correct ({correctCount})
-                    </TabsTrigger>
-                    <TabsTrigger value="wrong" className="flex-1">
-                      Wrong ({wrongCount})
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
+                <TabsList className="w-full mb-4">
+                  <TabsTrigger value="all" className="flex-1">
+                    All ({totalQuestions})
+                  </TabsTrigger>
+                  <TabsTrigger value="correct" className="flex-1">
+                    Correct ({correctCount})
+                  </TabsTrigger>
+                  <TabsTrigger value="wrong" className="flex-1">
+                    Wrong ({wrongCount})
+                  </TabsTrigger>
+                </TabsList>
 
                 {(['all', 'correct', 'wrong'] as const).map((filter) => {
                   const filtered = filter === 'all'
@@ -234,15 +260,15 @@ export default function ResultScreen() {
                     <TabsContent key={filter} value={filter} className="mt-0">
                       <ScrollArea className="max-h-[320px]">
                         {filtered.length === 0 ? (
-                          <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+                          <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
                             {filter === 'wrong' ? (
                               <>
-                                <CheckCircle2 className="size-8 text-success" />
+                                <CheckCircle2 className="size-10 text-emerald-600" />
                                 <p className="text-sm">No wrong answers — perfect!</p>
                               </>
                             ) : (
                               <>
-                                <XCircle className="size-8" />
+                                <XCircle className="size-10" />
                                 <p className="text-sm">No questions in this category</p>
                               </>
                             )}
@@ -267,7 +293,7 @@ export default function ResultScreen() {
                                   <TableCell className="font-medium">
                                     {item.question.a} × {item.question.b}
                                   </TableCell>
-                                  <TableCell className="text-success font-mono">
+                                  <TableCell className="text-emerald-600 font-mono">
                                     {item.question.ans}
                                   </TableCell>
                                   <TableCell className="font-mono">
@@ -275,7 +301,7 @@ export default function ResultScreen() {
                                   </TableCell>
                                   <TableCell className="text-right">
                                     {item.isCorrect ? (
-                                      <Badge variant="secondary" className="bg-success/10 text-success border-success/20 gap-1">
+                                      <Badge variant="secondary" className="bg-emerald-600/10 text-emerald-600 border-emerald-600/20 gap-1">
                                         <CheckCircle2 className="size-3" />
                                         Correct
                                       </Badge>
@@ -296,17 +322,17 @@ export default function ResultScreen() {
                   )
                 })}
               </Tabs>
-            </CardContent>
+            </div>
           </Card>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.5 }}
           className="pb-6"
         >
-          <Button onClick={reset} className="w-full h-11 gap-2 shadow-lg shadow-primary/20" size="lg">
+          <Button onClick={reset} className="w-full h-10 gap-2">
             <RotateCcw className="size-4" />
             Play Again
           </Button>

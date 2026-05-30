@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { generateOptions } from '@/lib/quiz-engine'
 import { playCorrect, playWrong } from '@/lib/audio'
@@ -8,7 +8,7 @@ import { useQuiz } from '@/context/QuizContext'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardHeader, CardDescription, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Sparkles, Zap, Flame } from 'lucide-react'
 
@@ -19,7 +19,6 @@ export default function QuizCard() {
   const [phase, setPhase] = useState<'cloak' | 'revealed' | 'answered'>('cloak')
   const [cloakTimeLeft, setCloakTimeLeft] = useState(config.cloakDuration)
   const [answerTimeLeft, setAnswerTimeLeft] = useState(config.speedMode ? 3 : 6)
-  const [options, setOptions] = useState<number[]>([])
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [feedbackAnim, setFeedbackAnim] = useState<'none' | 'correct' | 'wrong'>('none')
 
@@ -28,9 +27,9 @@ export default function QuizCard() {
   const totalCloakTime = config.cloakDuration
   const totalAnswerTime = config.speedMode ? 3 : 6
   const progressPercent = ((currentIndex + 1) / totalQuestions) * 100
+  const options = useMemo(() => generateOptions(question), [question])
 
   useEffect(() => {
-    setOptions(generateOptions(question))
     setCloakTimeLeft(config.cloakDuration)
     setAnswerTimeLeft(config.speedMode ? 3 : 6)
     setSelectedOption(null)
@@ -57,7 +56,6 @@ export default function QuizCard() {
   useEffect(() => {
     if (phase !== 'revealed') return
 
-    setAnswerTimeLeft(config.speedMode ? 3 : 6)
     answerTimerRef.current = setInterval(() => {
       setAnswerTimeLeft(prev => {
         if (prev <= 1) {
@@ -120,13 +118,8 @@ export default function QuizCard() {
   const labels = ['A', 'B', 'C', 'D']
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-40 left-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-40 right-20 w-80 h-80 bg-primary/8 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative z-10 flex-1 flex flex-col max-w-xl mx-auto w-full px-4 py-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 flex flex-col max-w-xl mx-auto w-full px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Badge variant="secondary" className="text-xs gap-1">
             <Sparkles className="size-3" />
@@ -155,13 +148,11 @@ export default function QuizCard() {
             </motion.div>
           )}
 
-          <Card className="w-full glass-card border-0 shadow-xl">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-center">
-                What is the product?
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center gap-6 pt-2">
+          <Card className="w-full bg-card rounded-xl border">
+            <div className="flex h-14 items-center justify-center border-b px-4 sm:px-5">
+              <span className="text-sm text-muted-foreground">What is the product?</span>
+            </div>
+            <CardContent className="flex flex-col items-center gap-6 pt-6 pb-6">
               <motion.h2
                 key={currentIndex}
                 initial={{ opacity: 0, y: 10 }}
@@ -177,15 +168,6 @@ export default function QuizCard() {
 
               <div className="relative">
                 <svg width="96" height="96" viewBox="0 0 100 100">
-                  <defs>
-                    <filter id="glow">
-                      <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                      <feMerge>
-                        <feMergeNode in="coloredBlur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                  </defs>
                   <circle cx="50" cy="50" r={ringRadius} fill="none" stroke="var(--border)" strokeWidth="6" />
                   {(phase === 'cloak' || phase === 'revealed') && (
                     <circle
@@ -203,7 +185,6 @@ export default function QuizCard() {
                       }
                       transform="rotate(-90 50 50)"
                       style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease' }}
-                      filter="url(#glow)"
                     />
                   )}
                   <text
@@ -256,7 +237,7 @@ export default function QuizCard() {
 
                   if (phase === 'answered') {
                     if (option === question.ans) {
-                      btnClass = 'bg-success text-white border-success hover:bg-success/90 shadow-lg shadow-success/20'
+                      btnClass = 'bg-success text-white border-success hover:bg-success/90'
                       icon = <span className="text-lg mr-1">✓</span>
                     } else if (option === selectedOption && feedbackAnim === 'wrong') {
                       btnClass = 'bg-destructive text-destructive-foreground border-destructive animate-shake'

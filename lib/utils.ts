@@ -1,5 +1,3 @@
-type ClassValue = string | ((...args: any[]) => any) | undefined | null | false
-
-export function cn(...classes: ClassValue[]): string {
+export function cn(...classes: (string | undefined | null | false)[]): string {
   return classes.filter((c): c is string => typeof c === 'string').join(' ')
 }

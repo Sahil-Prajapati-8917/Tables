@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes'
 import { useQuiz } from '@/context/QuizContext'
 import { RANGE_PRESETS, QUESTION_COUNTS, CLOAK_OPTIONS, DIFFICULTIES } from '@/lib/constants'
 import type { Difficulty } from '@/types/quiz'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
@@ -24,7 +24,6 @@ import {
   Gauge,
   Table,
   Sigma,
-  Sparkles,
 } from 'lucide-react'
 
 export default function SetupScreen() {
@@ -66,12 +65,7 @@ export default function SetupScreen() {
   const isDark = currentTheme === 'dark'
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-      </div>
-
+    <div className="min-h-screen bg-background flex flex-col">
       <div className="relative z-10 flex-1 flex flex-col">
         <header className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
@@ -100,18 +94,23 @@ export default function SetupScreen() {
             transition={{ duration: 0.5 }}
             className="w-full max-w-xl"
           >
-            <Card className="glass-card border-0 shadow-xl">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl">Quiz Setup</CardTitle>
-                    <CardDescription>Configure your multiplication challenge</CardDescription>
-                  </div>
-                  <Sparkles className="size-5 text-primary" />
+            <Card className="bg-card rounded-xl border">
+              <div className="flex h-14 items-center justify-between border-b px-4 sm:px-5">
+                <div className="flex items-center gap-2.5">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-7 sm:size-8"
+                    aria-label="Quiz setup"
+                  >
+                    <Sigma className="size-4 text-muted-foreground" />
+                  </Button>
+                  <h2 className="text-sm font-medium sm:text-base">Quiz Setup</h2>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
+              </div>
+
+              <div className="flex flex-col gap-2 p-4 sm:p-5">
+                <div className="p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <Layers className="size-4 text-muted-foreground" />
                     <label className="text-sm font-medium">Difficulty</label>
@@ -139,7 +138,7 @@ export default function SetupScreen() {
 
                 <Separator />
 
-                <div>
+                <div className="p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <Clock className="size-4 text-muted-foreground" />
                     <label className="text-sm font-medium">Cloak Duration</label>
@@ -164,23 +163,25 @@ export default function SetupScreen() {
 
                 <Separator />
 
-                <div className="flex items-center justify-between rounded-lg border p-3">
-                  <div className="flex items-center gap-2">
-                    <Gauge className="size-4 text-muted-foreground" />
-                    <div>
-                      <label className="text-sm font-medium">Speed Mode</label>
-                      <p className="text-xs text-muted-foreground">3s limit after options appear</p>
+                <div className="px-3 sm:px-4 py-2">
+                  <div className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="flex items-center gap-2">
+                      <Gauge className="size-4 text-muted-foreground" />
+                      <div>
+                        <label className="text-sm font-medium">Speed Mode</label>
+                        <p className="text-xs text-muted-foreground">3s limit after options appear</p>
+                      </div>
                     </div>
+                    <Switch
+                      checked={config.speedMode}
+                      onCheckedChange={(checked: boolean) => updateConfig({ speedMode: checked })}
+                    />
                   </div>
-                  <Switch
-                    checked={config.speedMode}
-                    onCheckedChange={(checked: boolean) => updateConfig({ speedMode: checked })}
-                  />
                 </div>
 
                 <Separator />
 
-                <div>
+                <div className="p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <Sigma className="size-4 text-muted-foreground" />
                     <label className="text-sm font-medium">Questions</label>
@@ -205,7 +206,7 @@ export default function SetupScreen() {
 
                 <Separator />
 
-                <div>
+                <div className="p-3 sm:p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Table className="size-4 text-muted-foreground" />
@@ -293,14 +294,13 @@ export default function SetupScreen() {
                     </p>
                   )}
                 </div>
-              </CardContent>
+              </div>
 
-              <div className="px-4 pb-4">
+              <div className="border-t px-4 sm:px-5 py-3">
                 <Button
                   onClick={handleStart}
                   disabled={!isStartEnabled}
-                  className="w-full h-11 gap-2 shadow-lg shadow-primary/20"
-                  size="lg"
+                  className="w-full h-10 gap-2"
                 >
                   <Play className="size-4" />
                   Start Quiz
