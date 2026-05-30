@@ -117,7 +117,7 @@ export default function ResultScreen() {
                 <span className="text-5xl">{performance.emoji}</span>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Timer className="size-3.5" />
-                  Completed in {timeTaken.mins}m {timeTaken.secs}s
+                  Completed in {mins}m {secs}s
                 </div>
               </div>
 
