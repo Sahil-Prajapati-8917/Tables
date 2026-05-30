@@ -22,6 +22,7 @@ interface QuizContextValue {
   score: number
   streak: number
   startTime: number
+  timeTaken: number
   scoreHistory: ScoreRecord[]
   setConfig: (config: QuizConfig) => void
   startQuiz: () => void
