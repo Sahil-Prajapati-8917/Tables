@@ -164,7 +164,7 @@ export default function SetupScreen() {
                 <Separator />
 
                 <div className="px-3 sm:px-4 py-2">
-                  <div className="flex items-center justify-between rounded-lg border p-3">
+                  <div className="flex items-center justify-between rounded-lg border border-border p-3">
                     <div className="flex items-center gap-2">
                       <Gauge className="size-4 text-muted-foreground" />
                       <div>
