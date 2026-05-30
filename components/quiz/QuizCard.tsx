@@ -122,7 +122,7 @@ function QuestionBlock({
   return (
     <>
       <Card className="w-full bg-card rounded-xl border border-border">
-        <div className="flex h-14 items-center justify-center border-b px-4 sm:px-5">
+        <div className="flex h-14 items-center justify-center border-b border-border px-4 sm:px-5">
           <span className="text-sm text-muted-foreground">What is the product?</span>
         </div>
         <CardContent className="flex flex-col items-center gap-6 pt-6 pb-6">
