@@ -103,10 +103,10 @@ export default function ResultScreen() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="bg-card rounded-xl border">
+          <Card className="bg-card rounded-xl border border-border">
             <div className="flex h-14 items-center justify-center border-b px-4 sm:px-5">
               <div className="flex items-center gap-2">
-                <div className="flex size-7 sm:size-8 items-center justify-center rounded-md border bg-muted/40">
+                <div className="flex size-7 sm:size-8 items-center justify-center rounded-md border border-border bg-muted/40">
                   <Trophy className="size-4 text-muted-foreground" />
                 </div>
                 <h2 className="text-sm font-medium sm:text-base">{performance.label}</h2>
@@ -122,7 +122,7 @@ export default function ResultScreen() {
               </div>
 
               <div className="grid gap-4 lg:grid-cols-3">
-                <div className="bg-card flex flex-col rounded-xl border p-4 sm:p-5">
+                <div className="bg-card flex flex-col rounded-xl border border-border p-4 sm:p-5">
                   <div className="flex min-h-[64px] items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
                       <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
@@ -143,7 +143,7 @@ export default function ResultScreen() {
                   </div>
                 </div>
 
-                <div className="bg-card flex flex-col rounded-xl border p-4 sm:p-5">
+                <div className="bg-card flex flex-col rounded-xl border border-border p-4 sm:p-5">
                   <div className="flex min-h-[64px] items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
                       <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
@@ -164,7 +164,7 @@ export default function ResultScreen() {
                   </div>
                 </div>
 
-                <div className="bg-card flex flex-col rounded-xl border p-4 sm:p-5">
+                <div className="bg-card flex flex-col rounded-xl border border-border p-4 sm:p-5">
                   <div className="flex min-h-[64px] items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
                       <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
@@ -191,7 +191,7 @@ export default function ResultScreen() {
                 </div>
               </div>
 
-              <div className="bg-card flex flex-col gap-3 rounded-xl border p-4 sm:p-5">
+              <div className="bg-card flex flex-col gap-3 rounded-xl border border-border p-4 sm:p-5">
                 <div className="flex min-h-[64px] items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <div className="bg-muted/40 flex size-8 items-center justify-center rounded-md border">
@@ -223,7 +223,7 @@ export default function ResultScreen() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="bg-card rounded-xl border">
+          <Card className="bg-card rounded-xl border border-border">
             <div className="flex h-14 items-center justify-between border-b px-4 sm:px-5">
               <div className="flex items-center gap-2.5">
                 <Button variant="outline" size="icon" className="size-7 sm:size-8" aria-label="Question review">
